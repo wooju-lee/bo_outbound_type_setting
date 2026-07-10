@@ -1,0 +1,1 @@
+# bo_outbound_type_setting
