@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IIC BO - Outbound Registration / Request</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif!important;}
+body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;min-height:100vh;zoom:0.8;}
+
+/* ===== MODAL (BaseModal) ===== */
+.modal-overlay{width:100%;display:flex;align-items:center;justify-content:center;padding:40px;}
+.modal{background:#fff;border-radius:8px;width:60%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 11px 15px -7px rgba(0,0,0,0.2),0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12);position:relative;}
+.modal::-webkit-scrollbar{width:8px;}
+.modal::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:4px;}
+.modal::-webkit-scrollbar-track{background:transparent;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;border-bottom:1px solid #e0e0e0;}
+.modal-header h2{font-size:16px;font-weight:600;color:rgba(0,0,0,0.87);}
+.modal-close{width:32px;height:32px;border:none;background:none;cursor:pointer;font-size:20px;color:rgba(0,0,0,0.54);display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s;}
+.modal-close:hover{background:rgba(0,0,0,0.04);}
+.modal-body{padding:0 40px 40px;overflow:visible;flex:1;}
+
+/* ===== TABS (BaseTabs + Icon) ===== */
+.tabs-wrap{background:#FAFAFA;border:1px solid #E5E5E5;border-radius:8px;height:50px;display:flex;align-items:center;margin:24px 0 44px;overflow:hidden;}
+.modal-tab{
+  flex:1;height:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:12px;font-weight:500;color:rgba(0,0,0,0.6);cursor:pointer;
+  border:none;background:none;border-bottom:3px solid transparent;
+  transition:all .15s;letter-spacing:0.3px;
+}
+.modal-tab .tab-icon{width:16px;height:16px;opacity:0.4;transition:opacity .2s;}
+.modal-tab:hover:not(.active){color:rgba(0,0,0,0.87);background:rgba(0,0,0,0.02);}
+.modal-tab:hover:not(.active) .tab-icon{opacity:0.6;}
+.modal-tab.active{color:#D97706;border-bottom-color:#D97706;font-weight:600;background:#fff;}
+.modal-tab.active .tab-icon{opacity:1;}
+
+/* ===== STEPPER (MUI Stepper alternativeLabel) ===== */
+.stepper{display:flex;align-items:flex-start;padding:8px 40px 0;margin-top:6px;margin-bottom:38px;}
+.step{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;z-index:1;}
+.step-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;}
+.step-circle.done{background:#4CAF50;}
+.step-circle.active{background:#ff6b35;}
+.step-circle.pending{background:#bdbdbd;}
+.step-label{margin-top:8px;font-size:13px;font-weight:500;color:rgba(0,0,0,0.6);white-space:nowrap;}
+.step.done .step-label{color:rgba(0,0,0,0.87);}
+.step.active .step-label{color:rgba(0,0,0,0.87);font-weight:600;}
+.step-connector{flex:1;height:1px;background:#bdbdbd;margin-top:12px;}
+.step-connector.done{background:#4CAF50;}
+
+/* ===== BaseBox ===== */
+.base-box{border-radius:8px;border:1px solid #E5E5E5;background:#FAFAFA;padding:20px 24px;margin-bottom:24px;}
+.base-box-title{font-size:12px;font-weight:600;color:#D97706;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px;}
+.info-row{display:flex;gap:40px;align-items:center;flex-wrap:wrap;}
+.info-item{display:flex;align-items:center;gap:8px;}
+.info-item .lbl{font-size:12px;font-weight:600;color:rgba(0,0,0,0.6);min-width:55px;}
+.info-item .val{font-size:13px;color:rgba(0,0,0,0.87);}
+.outbound-type-badge{position:absolute;right:24px;top:50%;transform:translateY(-50%);background:#F5F5F5;color:#555;padding:5px 14px;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:0.5px;border:1px solid #E0E0E0;}
+
+/* ===== FORM FIELDS (FormSelect / FormInput / FormDatePicker) ===== */
+.form-row{display:flex;gap:20px;align-items:flex-end;flex-wrap:wrap;}
+.form-field{display:flex;flex-direction:column;gap:5px;min-width:150px;}
+.form-field label{font-size:11px;font-weight:500;color:rgba(0,0,0,0.6);}
+.form-field label .req{color:#d32f2f;margin-left:2px;}
+.form-field select{
+  height:38px;border:1px solid rgba(0,0,0,0.23);border-radius:8px;padding:0 32px 0 12px;
+  font-size:11px;background:#fff;outline:none;color:rgba(0,0,0,0.87);min-width:220px;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color .15s;
+}
+.form-field select:hover{border-color:rgba(0,0,0,0.87);}
+.form-field select:focus{border-color:#ff6b35;border-width:2px;padding:0 31px 0 11px;background-color:#fff5f2;}
+.form-field input[type="date"]{
+  height:38px;border:1px solid rgba(0,0,0,0.23);border-radius:8px;padding:0 12px;
+  font-size:13px;background:#fff;outline:none;color:rgba(0,0,0,0.87);min-width:200px;
+  transition:border-color .15s;
+}
+.form-field input[type="date"]:hover{border-color:rgba(0,0,0,0.87);}
+.form-field input[type="date"]:focus{border-color:#ff6b35;border-width:2px;}
+
+/* Inline Form Fields */
+.inline-field{display:flex;align-items:center;gap:12px;}
+.inline-label{font-size:12px;font-weight:500;color:rgba(0,0,0,0.6);white-space:nowrap;}
+.inline-label .req{color:#d32f2f;margin-left:2px;}
+.inline-input{
+  height:38px;border:1px solid rgba(0,0,0,0.23);border-radius:8px;padding:0 12px;
+  font-size:13px;background:#fff;outline:none;color:rgba(0,0,0,0.87);min-width:220px;
+  transition:border-color .15s;
+}
+.inline-input:hover{border-color:rgba(0,0,0,0.87);}
+.inline-input:focus{border-color:#ff6b35;border-width:2px;}
+.inline-select{
+  height:38px;border:1px solid rgba(0,0,0,0.23);border-radius:8px;padding:0 32px 0 12px;
+  font-size:13px;background:#fff;outline:none;color:rgba(0,0,0,0.87);min-width:220px;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color .15s;
+}
+.inline-select:hover{border-color:rgba(0,0,0,0.87);}
+.inline-select:focus{border-color:#ff6b35;border-width:2px;background-color:#fff5f2;}
+
+/* B2B Type Badge */
+.type-badge{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:0.3px;background:#FFFBF3;color:#D97706;border:1px solid #F3E8D0;}
+
+/* ===== PRODUCT TABLE (MUI DataGridPro) ===== */
+.datagrid{border:1px solid #e0e0e0;border-radius:4px;background:#fff;display:flex;flex-direction:column;max-height:340px;overflow:hidden;}
+.datagrid-body{overflow-y:auto;flex:1;}
+.datagrid-body::-webkit-scrollbar{width:6px;}
+.datagrid-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px;}
+.datagrid-body::-webkit-scrollbar-track{background:transparent;}
+.datagrid-header{display:flex;align-items:center;background:#FAFAFA;border-bottom:1px solid #e0e0e0;min-height:46px;}
+.datagrid-header .col{flex:1;padding:0 16px;font-size:13px;font-weight:500;color:rgba(0,0,0,0.87);display:flex;align-items:center;justify-content:center;border-right:1px solid #e0e0e0;height:46px;white-space:nowrap;}
+.datagrid-header .col.col-left{justify-content:flex-start;}
+.datagrid-header .col:last-child{border-right:none;}
+.datagrid-header .col.col-sm{flex:0 0 100px;}
+.datagrid-header .col.col-xs{flex:0 0 56px;justify-content:center;}
+.datagrid-header .col.col-qty{flex:0 0 200px;}
+.datagrid-header .col .sort-icon{margin-left:4px;color:rgba(0,0,0,0.26);font-size:16px;}
+.datagrid-row{display:flex;align-items:center;border-bottom:1px solid #f0f0f0;min-height:52px;transition:background .1s;}
+.datagrid-row:last-child{border-bottom:none;}
+.datagrid-row:hover{background:rgba(0,0,0,0.04);}
+.datagrid-row .cell{flex:1;padding:0 16px;font-size:13px;color:rgba(0,0,0,0.87);display:flex;align-items:center;justify-content:center;}
+.datagrid-row .cell.col-left{justify-content:flex-start;}
+.datagrid-row .cell.col-sm{flex:0 0 100px;justify-content:center;}
+.datagrid-row .cell.col-xs{flex:0 0 56px;justify-content:center;}
+.datagrid-row .cell.col-qty{flex:0 0 200px;justify-content:center;}
+.datagrid-row .cell .product-main{font-size:13px;color:rgba(0,0,0,0.87);}
+.datagrid-row .cell .product-sub{font-size:11px;color:rgba(0,0,0,0.54);margin-top:2px;}
+.qty-input{
+  width:140px;height:36px;border:1px solid rgba(0,0,0,0.23);border-radius:8px;
+  padding:0 12px;font-size:13px;text-align:center;outline:none;transition:border-color .15s;
+}
+.qty-input:hover{border-color:rgba(0,0,0,0.87);}
+.qty-input:focus{border-color:#ff6b35;border-width:2px;}
+.qty-input::placeholder{color:rgba(0,0,0,0.38);font-size:11px;}
+.remove-btn{width:28px;height:28px;border:none;background:none;cursor:pointer;color:rgba(0,0,0,0.38);font-size:18px;border-radius:50%;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.remove-btn:hover{color:#d32f2f;background:rgba(211,47,47,0.04);}
+.datagrid-footer{display:flex;justify-content:flex-end;align-items:center;padding:8px 16px;border-top:1px solid #e0e0e0;font-size:12px;color:rgba(0,0,0,0.6);gap:8px;}
+
+/* ===== FOOTER (Sticky) ===== */
+.modal-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 0 0;border-top:1px solid #e0e0e0;margin-top:24px;
+  position:sticky;bottom:0;padding-bottom:20px;background:#fff;
+}
+.btn{
+  height:36px;padding:0 24px;border-radius:4px;font-size:13px;font-weight:500;
+  cursor:pointer;border:1px solid rgba(0,0,0,0.23);background:#fff;color:rgba(0,0,0,0.87);
+  transition:all .15s;display:flex;align-items:center;gap:6px;
+}
+.btn:hover{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.87);}
+.btn-primary{background:#ff6b35;color:#fff;border-color:#ff6b35;}
+.btn-primary:hover{background:#e55e2b;}
+.btn-primary:disabled{background:rgba(0,0,0,0.12);border-color:rgba(0,0,0,0.12);color:rgba(0,0,0,0.26);cursor:default;}
+.footer-right{display:flex;align-items:center;gap:16px;}
+.request-check{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(0,0,0,0.6);cursor:pointer;user-select:none;}
+.request-check input[type="checkbox"]{width:18px;height:18px;accent-color:#ff6b35;cursor:pointer;}
+.info-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#ff6b35;color:#fff;font-size:10px;font-weight:700;cursor:help;}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>Outbound Registration / Request</h2>
+      <button class="modal-close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Tabs (BaseTabs) -->
+      <div class="tabs-wrap">
+        <button class="modal-tab active">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          General Outbound
+        </button>
+        <button class="modal-tab">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+          Corporate Outbound
+        </button>
+        <button class="modal-tab">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-5-6v4h-2v-4H9l3-3 3 3h-2z"/></svg>
+          Bulk Upload (BULK)
+        </button>
+      </div>
+
+      <!-- Stepper (MUI alternativeLabel) -->
+      <div class="stepper">
+        <div class="step done">
+          <div class="step-circle done">✓</div>
+          <div class="step-label">Select Outbound Store</div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step done">
+          <div class="step-circle done">✓</div>
+          <div class="step-label">Select Inbound Store</div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step done">
+          <div class="step-circle done">✓</div>
+          <div class="step-label">Select Outbound Product</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step active">
+          <div class="step-circle active">4</div>
+          <div class="step-label">Enter Outbound Information</div>
+        </div>
+      </div>
+
+      <!-- Outbound Store (BaseBox) -->
+      <div class="base-box" style="position:relative;">
+        <div class="base-box-title">Outbound Store</div>
+        <div class="info-row">
+          <div class="info-item"><span class="lbl">BP</span><span class="val">C1002 / GM_United States</span></div>
+          <div class="info-item"><span class="lbl">Store</span><span class="val">US1006 / GM_WH_USA</span></div>
+          <div class="info-item"><span class="lbl">Location</span><span class="val">1110 / AVAILABLE</span></div>
+        </div>
+        <div class="outbound-type-badge">L2S</div>
+      </div>
+
+      <!-- Inbound Store (BaseBox) -->
+      <div class="base-box" style="position:relative;">
+        <div class="base-box-title">Inbound Store</div>
+        <div class="info-row">
+          <div class="info-item"><span class="lbl">BP</span><span class="val">C1002 / GM_United States</span></div>
+          <div class="info-item"><span class="lbl">Store</span><span class="val">US1015 / GM_OFFICE_USA</span></div>
+          <div class="info-item"><span class="lbl">Location</span><span class="val">1110 / AVAILABLE</span></div>
+        </div>
+        <div class="outbound-type-badge">L2S</div>
+      </div>
+
+      <!-- Outbound Info (BaseBox with inline form) -->
+      <div class="base-box" style="padding:0;overflow:hidden;">
+        <div style="padding:18px 24px;display:flex;gap:64px;align-items:center;">
+          <div class="inline-field">
+            <span class="inline-label">Outbound Request Date</span>
+            <input type="date" id="outDate" class="inline-input"/>
+          </div>
+          <div class="inline-field">
+            <span class="inline-label">Outbound Type<span class="req">*</span></span>
+            <select id="b2bType" class="inline-select">
+              <option value="N_B2B" selected>Normal B2B (N_B2B)</option>
+              <option value="S_B2B">Seeding B2B (S_B2B)</option>
+              <option value="TT_B2B">Tiktok B2B (TT_B2B)</option>
+              <option value="PS_B2B">PS B2B (PS_B2B)</option>
+              <option value="PRE_B2B">Pre B2B (PRE_B2B)</option>
+              <option value="GFT_B2B">Gift B2B (GFT_B2B)</option>
+              <option value="RX_B2B">RX B2B (RX_B2B)</option>
+            </select>
+            <span class="type-badge" id="typeBadge">N_B2B</span>
+          </div>
+        </div>
+        <div style="height:4px;background:#ff6b35;"></div>
+      </div>
+
+      <!-- Product Table (DataGridPro style) -->
+      <div class="datagrid">
+        <div class="datagrid-header">
+          <div class="col" style="flex:0 0 150px;">Brand</div>
+          <div class="col col-left">Product Info</div>
+          <div class="col col-sm">Available Qty</div>
+          <div class="col col-qty">Outbound Qty</div>
+          <div class="col col-xs"></div>
+        </div>
+        <div class="datagrid-body">
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005108 / GENT-KC6</div><div class="product-sub">8800352191485</div></div></div>
+          <div class="cell col-sm">60</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005112 / COMTE-01(OL)</div><div class="product-sub">8800352191508</div></div></div>
+          <div class="cell col-sm">29</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005135 / BONI-G11(BL)</div><div class="product-sub">8800352191386</div></div></div>
+          <div class="cell col-sm">21</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005201 / DREAMER-17(01)</div><div class="product-sub">8800352191601</div></div></div>
+          <div class="cell col-sm">45</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005202 / ROCOCO-R1(BK)</div><div class="product-sub">8800352191618</div></div></div>
+          <div class="cell col-sm">38</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005203 / PALETTE-PC1(GR)</div><div class="product-sub">8800352191625</div></div></div>
+          <div class="cell col-sm">12</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005204 / EVE-OT1(SV)</div><div class="product-sub">8800352191632</div></div></div>
+          <div class="cell col-sm">55</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005205 / JENNIE-J1(PK)</div><div class="product-sub">8800352191649</div></div></div>
+          <div class="cell col-sm">8</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005206 / MIA-M2(BR)</div><div class="product-sub">8800352191656</div></div></div>
+          <div class="cell col-sm">33</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005207 / MYMA-01(WH)</div><div class="product-sub">8800352191663</div></div></div>
+          <div class="cell col-sm">17</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005208 / CRELLA-C1(NV)</div><div class="product-sub">8800352191670</div></div></div>
+          <div class="cell col-sm">42</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        <div class="datagrid-row">
+          <div class="cell" style="flex:0 0 150px;">GENTLE MONSTER</div>
+          <div class="cell col-left"><div><div class="product-main">11005209 / SOLO-S1(GD)</div><div class="product-sub">8800352191687</div></div></div>
+          <div class="cell col-sm">26</div>
+          <div class="cell col-qty"><input type="number" class="qty-input" min="1" placeholder="Enter qty"/></div>
+          <div class="cell col-xs"><button class="remove-btn">✕</button></div>
+        </div>
+        </div>
+      </div>
+
+      <!-- Footer (Sticky) -->
+      <div class="modal-footer">
+        <button class="btn">← PREVIOUS</button>
+        <div class="footer-right">
+          <label class="request-check">
+            <input type="checkbox"/>
+            <span class="info-icon" title="Submit as outbound request instead of direct registration">i</span>
+            Request Outbound
+          </label>
+          <button class="btn btn-primary" disabled id="registerBtn">REGISTER</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// B2B Type badge update
+const typeSelect=document.getElementById('b2bType');
+const typeBadge=document.getElementById('typeBadge');
+typeSelect.onchange=()=>{ typeBadge.textContent=typeSelect.value; };
+
+// Enable REGISTER when all qty filled + date selected
+const qtyInputs=document.querySelectorAll('.qty-input');
+const regBtn=document.getElementById('registerBtn');
+function checkForm(){
+  const allFilled=[...qtyInputs].every(i=>i.value.trim()!==''&&Number(i.value)>0);
+  const hasDate=document.getElementById('outDate').value!=='';
+  regBtn.disabled=!(allFilled&&hasDate);
+}
+qtyInputs.forEach(i=>i.addEventListener('input',checkForm));
+// Set default date to today (outbound store timezone: EST)
+const now=new Date().toLocaleString('en-US',{timeZone:'America/New_York'});
+document.getElementById('outDate').value=new Date(now).toISOString().split('T')[0];
+document.getElementById('outDate').addEventListener('change',checkForm);
+
+// Tab switching
+document.querySelectorAll('.modal-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
