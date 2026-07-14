@@ -11,7 +11,7 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
 
 /* ===== MODAL (BaseModal) ===== */
 .modal-overlay{width:100%;display:flex;align-items:center;justify-content:center;padding:40px;}
-.modal{background:#fff;border-radius:8px;width:60%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 11px 15px -7px rgba(0,0,0,0.2),0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12);position:relative;}
+.modal{background:#fff;border-radius:8px;width:45%;min-height:1100px;max-height:1200px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 11px 15px -7px rgba(0,0,0,0.2),0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12);position:relative;}
 .modal::-webkit-scrollbar{width:8px;}
 .modal::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:4px;}
 .modal::-webkit-scrollbar-track{background:transparent;}
@@ -19,7 +19,7 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
 .modal-header h2{font-size:16px;font-weight:600;color:rgba(0,0,0,0.87);}
 .modal-close{width:32px;height:32px;border:none;background:none;cursor:pointer;font-size:20px;color:rgba(0,0,0,0.54);display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s;}
 .modal-close:hover{background:rgba(0,0,0,0.04);}
-.modal-body{padding:0 40px 40px;overflow:visible;flex:1;}
+.modal-body{padding:0 40px 40px;overflow-y:auto;flex:1;}
 
 /* ===== TABS (BaseTabs + Icon) ===== */
 .tabs-wrap{background:#FAFAFA;border:1px solid #E5E5E5;border-radius:8px;height:50px;display:flex;align-items:center;margin:24px 0 44px;overflow:hidden;}
@@ -106,8 +106,8 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
 .type-badge{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:0.3px;background:#FFFBF3;color:#D97706;border:1px solid #F3E8D0;}
 
 /* ===== PRODUCT TABLE (MUI DataGridPro) ===== */
-.datagrid{border:1px solid #e0e0e0;border-radius:4px;background:#fff;display:flex;flex-direction:column;max-height:340px;overflow:hidden;}
-.datagrid-body{overflow-y:auto;flex:1;}
+.datagrid{border:1px solid #e0e0e0;border-radius:4px;background:#fff;display:flex;flex-direction:column;max-height:460px;overflow:hidden;}
+.datagrid-body{overflow-y:auto;max-height:416px;}
 .datagrid-body::-webkit-scrollbar{width:6px;}
 .datagrid-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px;}
 .datagrid-body::-webkit-scrollbar-track{background:transparent;}
@@ -144,7 +144,7 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
 .modal-footer{
   display:flex;justify-content:space-between;align-items:center;
   padding:20px 0 0;border-top:1px solid #e0e0e0;margin-top:24px;
-  position:sticky;bottom:0;padding-bottom:20px;background:#fff;
+  padding:20px 40px;background:#fff;flex-shrink:0;
 }
 .btn{
   height:36px;padding:0 24px;border-radius:4px;font-size:13px;font-weight:500;
@@ -243,15 +243,15 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
           <div class="inline-field">
             <span class="inline-label">Outbound Order Tag<span class="req">*</span></span>
             <select id="b2bType" class="inline-select">
-              <option value="N_B2B" selected>Normal B2B (N_B2B)</option>
-              <option value="S_B2B">Seeding B2B (S_B2B)</option>
-              <option value="TT_B2B">Tiktok B2B (TT_B2B)</option>
-              <option value="PS_B2B">PS B2B (PS_B2B)</option>
-              <option value="PRE_B2B">Pre B2B (PRE_B2B)</option>
-              <option value="GFT_B2B">Gift B2B (GFT_B2B)</option>
-              <option value="RX_B2B">RX B2B (RX_B2B)</option>
+              <option value="N_B2B" selected>Normal</option>
+              <option value="S_B2B">Seeding</option>
+              <option value="TT_B2B">Tiktok</option>
+              <option value="PS_B2B">PS</option>
+              <option value="PRE_B2B">Pre</option>
+              <option value="GFT_B2B">Gift</option>
+              <option value="RX_B2B">RX</option>
             </select>
-            <span class="type-badge" id="typeBadge">N_B2B</span>
+            <span class="type-badge" id="typeBadge">Normal</span>
           </div>
         </div>
         <div style="height:4px;background:#ff6b35;"></div>
@@ -354,7 +354,8 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
         </div>
       </div>
 
-      <!-- Footer (Sticky) -->
+    </div>
+      <!-- Footer -->
       <div class="modal-footer">
         <button class="btn">← PREVIOUS</button>
         <div class="footer-right">
@@ -366,7 +367,6 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
           <button class="btn btn-primary" disabled id="registerBtn">REGISTER</button>
         </div>
       </div>
-    </div>
   </div>
 </div>
 
@@ -374,7 +374,7 @@ body{background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:
 // B2B Type badge update
 const typeSelect=document.getElementById('b2bType');
 const typeBadge=document.getElementById('typeBadge');
-typeSelect.onchange=()=>{ typeBadge.textContent=typeSelect.value; };
+typeSelect.onchange=()=>{ typeBadge.textContent=typeSelect.options[typeSelect.selectedIndex].text; };
 
 // Enable REGISTER when all qty filled + date selected
 const qtyInputs=document.querySelectorAll('.qty-input');
